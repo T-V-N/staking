@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.0;
 
 /*
@@ -22,10 +21,7 @@ abstract contract Context {
     }
 }
 
-
 // File openzeppelin-solidity/contracts/access/Ownable.sol@v4.2.0
-
-
 
 pragma solidity ^0.8.0;
 
@@ -44,7 +40,10 @@ pragma solidity ^0.8.0;
 abstract contract Ownable is Context {
     address private _owner;
 
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    event OwnershipTransferred(
+        address indexed previousOwner,
+        address indexed newOwner
+    );
 
     /**
      * @dev Initializes the contract setting the deployer as the initial owner.
@@ -84,7 +83,10 @@ abstract contract Ownable is Context {
      * Can only be called by the current owner.
      */
     function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        require(
+            newOwner != address(0),
+            "Ownable: new owner is the zero address"
+        );
         _setOwner(newOwner);
     }
 
@@ -95,105 +97,7 @@ abstract contract Ownable is Context {
     }
 }
 
-
-// File openzeppelin-solidity/contracts/utils/math/Math.sol@v4.2.0
-
-
-
-pragma solidity ^0.8.0;
-
-/**
- * @dev Standard math utilities missing in the Solidity language.
- */
-library Math {
-    /**
-     * @dev Returns the largest of two numbers.
-     */
-    function max(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a >= b ? a : b;
-    }
-
-    /**
-     * @dev Returns the smallest of two numbers.
-     */
-    function min(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a < b ? a : b;
-    }
-
-    /**
-     * @dev Returns the average of two numbers. The result is rounded towards
-     * zero.
-     */
-    function average(uint256 a, uint256 b) internal pure returns (uint256) {
-        // (a + b) / 2 can overflow, so we distribute.
-        return (a / 2) + (b / 2) + (((a % 2) + (b % 2)) / 2);
-    }
-
-    /**
-     * @dev Returns the ceiling of the division of two numbers.
-     *
-     * This differs from standard division with `/` in that it rounds up instead
-     * of rounding down.
-     */
-    function ceilDiv(uint256 a, uint256 b) internal pure returns (uint256) {
-        // (a + b - 1) / b can overflow on addition, so we distribute.
-        return a / b + (a % b == 0 ? 0 : 1);
-    }
-}
-
-
-// File openzeppelin-solidity/contracts/utils/Arrays.sol@v4.2.0
-
-
-
-pragma solidity ^0.8.0;
-
-/**
- * @dev Collection of functions related to array types.
- */
-library Arrays {
-    /**
-     * @dev Searches a sorted `array` and returns the first index that contains
-     * a value greater or equal to `element`. If no such index exists (i.e. all
-     * values in the array are strictly less than `element`), the array length is
-     * returned. Time complexity O(log n).
-     *
-     * `array` is expected to be sorted in ascending order, and to contain no
-     * repeated elements.
-     */
-    function findUpperBound(uint256[] storage array, uint256 element) internal view returns (uint256) {
-        if (array.length == 0) {
-            return 0;
-        }
-
-        uint256 low = 0;
-        uint256 high = array.length;
-
-        while (low < high) {
-            uint256 mid = Math.average(low, high);
-
-            // Note that mid will always be strictly less than high (i.e. it will be a valid array index)
-            // because Math.average rounds down (it does integer division with truncation).
-            if (array[mid] > element) {
-                high = mid;
-            } else {
-                low = mid + 1;
-            }
-        }
-
-        // At this point `low` is the exclusive upper bound. We will return the inclusive upper bound.
-        if (low > 0 && array[low - 1] == element) {
-            return low - 1;
-        } else {
-            return low;
-        }
-    }
-}
-
-
 // File openzeppelin-solidity/contracts/token/ERC20/IERC20.sol@v4.2.0
-
-
 
 pragma solidity ^0.8.0;
 
@@ -218,7 +122,9 @@ interface IERC20 {
      *
      * Emits a {Transfer} event.
      */
-    function transfer(address recipient, uint256 amount) external returns (bool);
+    function transfer(address recipient, uint256 amount)
+        external
+        returns (bool);
 
     /**
      * @dev Returns the remaining number of tokens that `spender` will be
@@ -227,7 +133,10 @@ interface IERC20 {
      *
      * This value changes when {approve} or {transferFrom} are called.
      */
-    function allowance(address owner, address spender) external view returns (uint256);
+    function allowance(address owner, address spender)
+        external
+        view
+        returns (uint256);
 
     /**
      * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
@@ -272,16 +181,16 @@ interface IERC20 {
      * @dev Emitted when the allowance of a `spender` for an `owner` is set by
      * a call to {approve}. `value` is the new allowance.
      */
-    event Approval(address indexed owner, address indexed spender, uint256 value);
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 value
+    );
 }
-
 
 // File contracts/SSTKStaking.sol
 
 pragma solidity ^0.8.2;
-
-
-
 
 contract SSTKStaking is Ownable {
     struct Stake {
@@ -308,7 +217,11 @@ contract SSTKStaking is Ownable {
 
     IERC20 _token;
 
-    event MembershipAdded(uint256 threshold, uint256 apy, uint256 newLevelsCount);
+    event MembershipAdded(
+        uint256 threshold,
+        uint256 apy,
+        uint256 newLevelsCount
+    );
     event MembershipRemoved(uint256 index, uint256 newLevelsCount);
     event Staked(address fromUser, uint256 amount);
     event Claimed(address byUser, uint256 reward);
@@ -319,27 +232,58 @@ contract SSTKStaking is Ownable {
         rewardPeriod = newPeriod;
     }
 
-    function changeMembershipAPY(uint256 index, uint256 newAPY) external onlyOwner {
+    function changeMembershipAPY(uint256 index, uint256 newAPY)
+        external
+        onlyOwner
+    {
         require(index <= levelsCount - 1, "Wrong membership id");
-        if (index > 0) require(MembershipLevels[index - 1].APY < newAPY, "Cannot be lower than previous lvl");
-        if (index < levelsCount - 1) require(MembershipLevels[index + 1].APY > newAPY, "Cannot be higher than next lvl");
+        if (index > 0)
+            require(
+                MembershipLevels[index - 1].APY < newAPY,
+                "Cannot be lower than previous lvl"
+            );
+        if (index < levelsCount - 1)
+            require(
+                MembershipLevels[index + 1].APY > newAPY,
+                "Cannot be higher than next lvl"
+            );
         MembershipLevels[index].APY = newAPY;
     }
 
-    function changeMembershipThreshold(uint256 index, uint256 newThreshold) external onlyOwner {
+    function changeMembershipThreshold(uint256 index, uint256 newThreshold)
+        external
+        onlyOwner
+    {
         require(index <= levelsCount - 1, "Wrong membership id");
-        if (index > 0) require(MembershipLevels[index - 1].threshold < newThreshold, "Cannot be lower than previous lvl");
-        if (index < levelsCount - 1) require(MembershipLevels[index + 1].threshold > newThreshold, "Cannot be higher than next lvl");
+        if (index > 0)
+            require(
+                MembershipLevels[index - 1].threshold < newThreshold,
+                "Cannot be lower than previous lvl"
+            );
+        if (index < levelsCount - 1)
+            require(
+                MembershipLevels[index + 1].threshold > newThreshold,
+                "Cannot be higher than next lvl"
+            );
         MembershipLevels[index].threshold = newThreshold;
     }
 
     function addMembership(uint256 threshold, uint256 APY) public onlyOwner {
-        require(threshold > 0 && APY > 0, "Threshold and APY should be larger than zero");
+        require(
+            threshold > 0 && APY > 0,
+            "Threshold and APY should be larger than zero"
+        );
         if (levelsCount == 0) {
             MembershipLevels.push(MembershipLevel(threshold, APY));
         } else {
-            require(MembershipLevels[levelsCount - 1].threshold < threshold, "New threshold must be larger than the last");
-            require(MembershipLevels[levelsCount - 1].APY < APY, "New APY must be larger than the last");
+            require(
+                MembershipLevels[levelsCount - 1].threshold < threshold,
+                "New threshold must be larger than the last"
+            );
+            require(
+                MembershipLevels[levelsCount - 1].APY < APY,
+                "New APY must be larger than the last"
+            );
             MembershipLevels.push(MembershipLevel(threshold, APY));
         }
         levelsCount++;
@@ -372,11 +316,21 @@ contract SSTKStaking is Ownable {
             uint256 cooldown
         )
     {
-        return (Stakes[user].staked, getAPY(Stakes[user].staked), Stakes[user].lastWithdrawnTime, Stakes[user].cooldown);
+        return (
+            Stakes[user].staked,
+            getAPY(Stakes[user].staked),
+            Stakes[user].lastWithdrawnTime,
+            Stakes[user].cooldown
+        );
     }
 
-    function calculateAdditionalTime(uint256 staked, uint256 tokensReceived) public view returns (uint256) {
-        uint256 minimalTime = (_minimalAdditionalDelay * rewardPeriod) / _divider;
+    function calculateAdditionalTime(uint256 staked, uint256 tokensReceived)
+        public
+        view
+        returns (uint256)
+    {
+        uint256 minimalTime = (_minimalAdditionalDelay * rewardPeriod) /
+            _divider;
         uint256 time = (tokensReceived * rewardPeriod) / staked;
         if (time < minimalTime) return minimalTime;
         return time;
@@ -415,7 +369,10 @@ contract SSTKStaking is Ownable {
         uint256 tokens
     ) public view returns (uint256) {
         if (block.timestamp - cooldown <= lastWithdrawn) return 0;
-        return ((block.timestamp - lastWithdrawn) * tokens * APY) / _divider / apyBase;
+        return
+            ((block.timestamp - lastWithdrawn) * tokens * APY) /
+            _divider /
+            apyBase;
     }
 
     function getReward(address user) public view returns (uint256) {
@@ -432,10 +389,14 @@ contract SSTKStaking is Ownable {
 
     function stake(uint256 tokens) external {
         require(tokens > 0, "Cannot stake 0");
-        require(MembershipLevels[0].threshold <= tokens + Stakes[msg.sender].staked, "Cannot stake such few tokens");
+        require(
+            MembershipLevels[0].threshold <= tokens + Stakes[msg.sender].staked,
+            "Cannot stake such few tokens"
+        );
         uint256 currentBalance = _token.balanceOf(address(this));
         _token.transferFrom(msg.sender, address(this), tokens);
-        uint256 tokensReceived = _token.balanceOf(address(this)) - currentBalance;
+        uint256 tokensReceived = _token.balanceOf(address(this)) -
+            currentBalance;
         require(tokensReceived > 0, "Cannot stake 0");
 
         //if it is the first time then just set lastWithdrawnTime to now
@@ -453,8 +414,14 @@ contract SSTKStaking is Ownable {
             }
             //In case a user doesn't have unclaimed tokens but has active stake, top up it and adjust the timer
             else {
-                uint256 additionalTime = calculateAdditionalTime(Stakes[msg.sender].staked, tokensReceived);
-                Stakes[msg.sender].cooldown = block.timestamp - Stakes[msg.sender].lastWithdrawnTime + additionalTime;
+                uint256 additionalTime = calculateAdditionalTime(
+                    Stakes[msg.sender].staked,
+                    tokensReceived
+                );
+                Stakes[msg.sender].cooldown =
+                    block.timestamp -
+                    Stakes[msg.sender].lastWithdrawnTime +
+                    additionalTime;
             }
         }
 
